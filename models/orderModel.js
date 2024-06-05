@@ -60,6 +60,9 @@ const orderSchema = mongoose.Schema({
     required: [true, "Total Amount is required"],
     type: Number,
   },
+  totalFinalAmount: {
+    type: Number,
+  },
   userId: {  // Changed field name to plural and set type as an array of ObjectIds
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -103,6 +106,23 @@ const orderSchema = mongoose.Schema({
     default: 0,
   },
   endStatusOTP: {
+    type: Number,
+    default: 0,
+  },DriveHR: {
+    type: Number,
+    default: 0,
+  },
+  FinalDriveHR: {
+    type: Number,
+    default: 0,
+  },
+  otpStartDate: {
+    type: Date,
+  },
+  otpEndDate: {
+    type: Date,
+  },
+  paymentConfirm: {
     type: Number,
     default: 0,
   },

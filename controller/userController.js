@@ -27,6 +27,7 @@ import querystring from 'querystring';
 import https from 'https';
 import CryptoJS from 'crypto-js'; // Import the crypto module
 import axios from 'axios';
+import transactionModel from "../models/transactionModel.js";
 
 dotenv.config();
 
@@ -88,7 +89,7 @@ function md5(input) {
 const secretKey = process.env.SECRET_KEY;
 
 
-
+// notification functions
 
 export const AddNotification = async (req, res) => {
   try {
@@ -172,6 +173,75 @@ export const GetUserNotification = async (req, res) => {
     });
   }
 }
+
+// Wallet functionality
+
+
+export const AddWallet = async (req, res) => {
+  try {
+    const { userId, type, note,wallet } = req.body;
+
+
+       
+    // Create a new transaction
+    const transaction = new transactionModel({
+      userId,
+      type,
+      note,
+      amount:wallet,
+    });
+
+    await transaction.save();
+
+    // Update user's wallet amount
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    user.wallet += wallet;
+
+    await user.save();
+
+    return res.status(200).send({
+      success: true,
+      message: 'Wallet updated successfully',
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error adding to wallet: ${error}`,
+      success: false,
+      error,
+    });
+  }
+};
+
+export const AllTransaction = async (req, res) => {
+  try {
+ 
+    const { userId } = req.params;
+    const transactions = await transactionModel.find({ userId :userId}).lean();
+
+    return res.status(200).send({
+      success: true,
+      message: 'Transaction fetched successfully',
+      transactions,
+    });
+
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error transaction fetched: ${error}`,
+      success: false,
+      error,
+    });
+  }
+};
+
+// Message functionality
 
 export const AddMessage = async (req, res) => {
   try {
@@ -1296,7 +1366,7 @@ export const updateUserAndCreateOrderController = async (req, res) => {
     totalAmount,
     userId,
     mode,
-    CarType,details
+    CarType,details,DriveHR
   } = req.body;
 
 
@@ -1355,7 +1425,7 @@ export const updateUserAndCreateOrderController = async (req, res) => {
       userId,
       mode,
       CarType,details,
-      orderId
+      orderId,DriveHR
     });
 
     await newOrder.save({ session });
@@ -2108,6 +2178,45 @@ export const userOrdersViewController = async (req, res) => {
   try {
     const { userId, orderId } = req.params;
 
+    // Find the user by ID and populate their orders
+    const userOrder = await userModel.findById(userId)
+    .populate({
+      path: 'orders',
+      match: { _id: orderId }, // Match the order ID
+      populate: {
+        path: 'driverId', // Populate the driverId
+        select: '_id username email phone' // Select the fields you want to include from the driver
+      }
+    });
+    // If user or order not found, return appropriate response
+    if (!userOrder || !userOrder.orders) {
+      return res.status(404).json({
+        message: 'Order Not Found By user or Order ID',
+        success: false,
+      });
+    }
+
+    // If user order found, return success response with the single order
+    return res.status(200).json({
+      message: 'Single Order Found By user ID and Order ID',
+      success: true,
+      userOrder: userOrder.orders, // Assuming there's only one order per user
+    });
+  } catch (error) {
+    // If any error occurs during the process, log it and return error response
+    console.log(error);
+    return res.status(400).json({
+      success: false,
+      message: "Error while getting order",
+      error,
+    });
+  }
+}
+
+export const DriverOrdersViewController = async (req, res) => {
+  try {
+    const { userId, orderId } = req.params;
+
 
     // Find the user by ID and populate their orders
     const userOrder = await userModel.findById(userId)
@@ -2141,7 +2250,7 @@ export const userOrdersViewController = async (req, res) => {
   }
 }
 
- 
+
 export const GetUsernameById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -2880,7 +2989,7 @@ console.log(otp)
         return res.status(201).json({
           success: true,
           message: 'User found',
-          existingUser: { _id: existingUser._id, username: existingUser.username, phone: existingUser.phone, email: existingUser.email },
+          existingUser: { _id: existingUser._id, username: existingUser.username, phone: existingUser.phone, email: existingUser.email,type: existingUser.type },
           token: existingUser.token,
           otp: otp,
         });
@@ -2937,11 +3046,12 @@ export const SignupNewUser = async (req, res) => {
     await user.save();
 
     // Generate JWT token
+   console.log('user.type',user.type);
 
     res.status(201).json({
       success: true,
       message: 'User created successfully',
-      existingUser: { _id: user._id, username: user.username, phone: user.phone, email: user.email },
+      existingUser: { _id: user._id, username: user.username, phone: user.phone, email: user.email,type: user.type },
       otp: otp,
       token,
     });
@@ -2988,7 +3098,7 @@ export const LoginUserWithOTP = async (req, res) => {
       return res.status(201).json({
         success: true,
         message: 'User found',
-        existingUser: { _id: existingUser._id, username: existingUser.username, phone: existingUser.phone, email: existingUser.email },
+        existingUser: { _id: existingUser._id, username: existingUser.username, phone: existingUser.phone, email: existingUser.email,type: existingUser.type },
         token: existingUser.token,
         otp: otp,
       });
@@ -3037,7 +3147,7 @@ export const LoginUserWithPass = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'login sucesssfully with password',
-      existingUser: { _id: user._id, username: user.username, phone: user.phone, email: user.email },
+      existingUser: { _id: user._id, username: user.username, phone: user.phone, email: user.email,type: user.type },
       token: user.token,
       checkpass: true,
     });
@@ -3096,7 +3206,7 @@ console.log(req.body.id)
           message: 'login sucesssfully with password',
           existingUser: {
             _id: existingUser._id, username: existingUser.username, phone: existingUser.phone, email: existingUser.email,
-            address: existingUser.address, pincode: existingUser.pincode, state: existingUser.state,messages:existingUser.messages,notifications:existingUser.notifications
+            address: existingUser.address, pincode: existingUser.pincode, state: existingUser.state,messages:existingUser.messages,notifications:existingUser.notifications,wallet:existingUser.wallet
           },
         });
 
@@ -3424,6 +3534,7 @@ export const AllBookingsByDriver = async (req, res) => {
 
 // Accept Booking By driver
 export const AcceptOrderDriver = async (req, res) => {
+
   try {
     const { orderId, driverId } = req.body; // Changed to camelCase orderId
 
@@ -3453,18 +3564,43 @@ export const AcceptOrderDriver = async (req, res) => {
       });
     }
 
+    const user = await userModel.findById(driverId);
 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Driver not found',
+      });
+    }
+
+       // Calculate the commission and the amount to deduct from the user's wallet
+ const orderAmount = order.totalAmount;
+ const commissionRate = user.LocalCommission / 100;
+ const commissionAmount = orderAmount * commissionRate;
+
+
+console.log('amountToDeduct',commissionAmount);
+ 
+      if (user.wallet >= commissionAmount) {
+   
+        
   //  Update the order with the provided driverId
     order.driverId = driverId;
     await order.save();
-
-    console.log()
 
     return res.status(200).json({
       success: true,
       message: 'Booking accepted by the driver successfully',
       order,
     });
+ 
+      }else{
+        return res.status(400).json({
+          success: false,
+          message: 'You do not have enough points to accept this ride',
+        });
+      }
+      
 
   } catch (error) {
     return res.status(400).json({
@@ -3473,6 +3609,7 @@ export const AcceptOrderDriver = async (req, res) => {
       error,
     });
   }
+
 };
 
 
@@ -3587,6 +3724,7 @@ export const StartOrderVerifyRide = async (req, res) => {
     const order = await orderModel.findById(orderId);
  
  order.startStatusOTP = 1;
+ order.otpStartDate = new Date(); // Update otpStartDate to the current date and time
 //  order.endOTP = endOTP;
 
     if (!order) {
@@ -3613,6 +3751,18 @@ export const StartOrderVerifyRide = async (req, res) => {
   }
 };
 
+const calculateTimeDuration = (start, end) => {
+  const startTime = new Date(start);
+  const endTime = new Date(end);
+
+  const difference = endTime - startTime;
+  const hours = Math.floor(difference / 1000 / 60 / 60);
+  const minutes = Math.floor((difference / 1000 / 60) % 60);
+
+  return { hours, minutes };
+};
+
+
 export const EndOrderVerifyRide = async (req, res) => {
   try {
     const orderId  = req.params.id;
@@ -3627,9 +3777,7 @@ export const EndOrderVerifyRide = async (req, res) => {
 
     // Check if the order exists
     const order = await orderModel.findById(orderId);
- 
- order.endStatusOTP = 1;
-//  order.endOTP = endOTP;
+
 
     if (!order) {
       return res.status(404).json({
@@ -3637,6 +3785,95 @@ export const EndOrderVerifyRide = async (req, res) => {
         message: 'Order not found',
       });
     }
+
+  
+
+    const caldata = await homeModel.findOne();
+    
+    // Check if caldata exists
+    if (!caldata) {
+      return res.status(404).json({
+        success: false,
+        message: 'calulation data not found.',
+      });
+    }
+
+     
+ order.endStatusOTP = 1;
+ const EndDate = new Date(); // Update otpEndDate to the current date and time
+  order.otpEndDate = EndDate;
+  const Totaltime = calculateTimeDuration(order.otpStartDate, EndDate);
+  const { hours, minutes } = Totaltime;
+
+ let TotalCost = 0;
+
+    // Calculate total cost based on time duration
+    if (hours <= 4) {
+      TotalCost = caldata.localCharges13;
+      if(hours === 4){
+        if (minutes > 0) {
+          TotalCost += minutes * caldata.localBeyond3hrsMinute;
+        }  
+      }
+    } else {
+      TotalCost = (hours - 4) * 60 * caldata.localBeyond3hrsMinute + caldata.localCharges13;
+      if (minutes > 0) {
+        TotalCost += minutes * caldata.localBeyond3hrsMinute;
+      }  
+    }
+
+    const roundedTotalCost = Math.round(TotalCost);
+
+  
+if(TotalCost === undefined && TotalCost === 0){
+  return res.status(404).json({
+    success: false,
+    message: 'Total Cost Undefined',
+  });
+}
+
+order.totalAmount = roundedTotalCost;
+
+
+       // Find the user by driverId
+       const user = await userModel.findById(order.driverId);
+
+       if (!user) {
+         return res.status(404).json({
+           success: false,
+           message: 'Driver not found',
+         });
+       }
+
+          // Calculate the commission and the amount to deduct from the user's wallet
+    const orderAmount = roundedTotalCost;
+    const commissionRate = user.LocalCommission / 100;
+    const commissionAmount = Math.round(orderAmount * commissionRate);
+
+
+console.log('amountToDeduct',commissionAmount)
+
+
+    if (user.wallet >= commissionAmount) {
+      user.wallet -= commissionAmount; // Deduct the amount from the user's wallet
+      await user.save();
+
+      const transaction = new transactionModel({
+        userId: order.driverId,
+        type: 1,
+        note: 'Commission deducted and ride completed Booking ID #'+order.orderId,
+        amount: -commissionAmount,
+      });
+
+      await transaction.save();
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'You do not have enough funds to end this ride',
+      });
+    }
+
+    console.log('order',order.driverId,user);
 
     await order.save();
 

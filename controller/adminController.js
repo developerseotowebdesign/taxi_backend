@@ -1513,7 +1513,9 @@ export const editHomeData = async (req, res) => {
       email,
       address,
       cash,
-      razorpay
+      razorpay,
+      serviceCharges,returnFareCharges,localHrCharges,localCharges13,localBeyond3hrsMinute,localNightChargesHour,OutstationOneWayChargesKm,
+      outstationChargesRoundTripDay,OutstationNightCharges,MealCharges,BookingCancelCharges,ShowStatus
     } = req.body;
 
     console.log(meta_favicon)
@@ -1531,7 +1533,9 @@ export const editHomeData = async (req, res) => {
       email,
       address,
       cash,
-      razorpay
+      razorpay,
+      serviceCharges,returnFareCharges,localHrCharges,localCharges13,localBeyond3hrsMinute,localNightChargesHour,OutstationOneWayChargesKm,
+      outstationChargesRoundTripDay,OutstationNightCharges,MealCharges,BookingCancelCharges,ShowStatus
     };
 
     const homeData = await homeModel.findOneAndUpdate({}, updateFields, {
@@ -1976,12 +1980,19 @@ export const editOrderAdmin = async (req, res) => {
 //   }
 // };
 
-
 export const editOrderDriverAdmin = async (req, res) => {
   try {
     const { id } = req.params;
     const { driverId } = req.body;
-  
+
+    // Check if driverId is a valid ObjectId (24 hex characters)
+    if (!/^[0-9a-fA-F]{24}$/.test(driverId)) {
+      return res.status(400).json({
+        message: "Invalid driverId",
+        success: false,
+      });
+    }
+
     const order = await orderModel.findById(id);
 
     if (!order) {
@@ -1990,25 +2001,22 @@ export const editOrderDriverAdmin = async (req, res) => {
         success: false,
       });
     }
-    
-    const text = `Booking Id #${order.orderId} Asigned By Admin`;
 
-    if (order.driverId.equals(driverId)) {
+    // Check if order.driverId exists and if it's the same as the new driverId
+    if (order.driverId && order.driverId.toString() === driverId) {
       return res.status(400).json({
         message: "You can't assign the same driver",
         success: false,
       });
     }
 
-
     order.driverId = driverId;
-
     await order.save();
 
     // Fetch the updated order to confirm the change
     const updatedOrder = await orderModel.findById(id);
-   // console.log(`Updated driverId: ${updatedOrder.driverId}`);
- 
+
+    const text = `Booking Id #${order.orderId} Assigned By Admin`;
     const notification = new notificationModel({
       text,
       receiver: driverId,
@@ -2022,6 +2030,7 @@ export const editOrderDriverAdmin = async (req, res) => {
       user.notifications += 1;
       await user.save();
     }
+
     console.log(`Updated driverId: ${user}`);
 
     return res.status(200).json({

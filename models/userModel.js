@@ -54,6 +54,18 @@ const userSchema = mongoose.Schema({
   notifications:{
     type: Number,
     default: 0
+  },
+  wallet:{
+    type: Number,
+    default: 0
+  },
+  LocalCommission:{
+    type: Number,
+    default: 13
+  },
+  OutstationCommission:{
+    type: Number,
+    default: 13
   }
 },
   { timestamps: true }

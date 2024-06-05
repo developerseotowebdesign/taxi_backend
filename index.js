@@ -17,7 +17,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://192.168.0.108:5173", // Allow requests from this origin
+    origin: "http://localhost:5173", // Allow requests from this origin
     methods: ["GET", "POST"] // Allow only GET and POST methods
   }
 }); // Create a new instance of Socket.io Server and pass the HTTP server to it
@@ -69,7 +69,7 @@ connection(username, password, DBURL);
 
 // Socket.io events
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log("A user connected",socket.id);
 
   // Example: Handle chat message event
   socket.on("chat message", (msg) => {

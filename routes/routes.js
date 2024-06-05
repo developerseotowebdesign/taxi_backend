@@ -8,7 +8,7 @@ import {
 import {getAllBookRide,AddMessage,AddNotification,GetUserMessage,GetUserNotification,
   findDistanceApi, AddCart, contactEnquire, razorpayCallback, UpdateCart, getCart, userTokenController, userBlogsController, Userlogin, SignupUser, getAllBlogsController, createBlogController,
     updateBlogController, deleteBlogController, getBlogIdController, CreateChatController, findUserschatController, findchatController
-  ,StartOrderVerifyRide,EndOrderVerifyRide, EndOrderRide , StartOrderRide ,DeleteNotification,GetUsernameById,AllBookingsByDriver,AcceptOrderDriver,RejectOrderDriver,EmailVerify,PaymentResponse ,postman ,PaymentRequest, getProductsByFilterUser, cancelOrderUser, ViewAllZones, getProductsByHSN, AuthUserByID, updateProfileUser, SignupNewUser, LoginUserWithOTP, LoginUserWithPass, SendOTP, SignupLoginUser, getTaxIdUser, ViewAllUserTaxes, ViewCompareByUser, applyPromoCode, getHomeLayoutData, AddWishListByUser, deleteCompareByUser, deleteWishListByUser, ViewWishListByUser, AddCompareByUser, ViewProductRating, ViewCategoryRating, AddRating, UsergetAllCategories, UsergetAllProducts, UsergetAllHomeProducts, userOrdersViewController, getAllAttributeUser, getProductIdUser, updateUserController, createOrderController, updateUserAndCreateOrderController, userOrdersController, getHomeData, GetAllCategoriesByParentIdController
+    ,AllTransaction,AddWallet ,StartOrderVerifyRide,EndOrderVerifyRide, EndOrderRide , StartOrderRide ,DeleteNotification,GetUsernameById,AllBookingsByDriver,AcceptOrderDriver,RejectOrderDriver,EmailVerify,PaymentResponse ,postman ,PaymentRequest, getProductsByFilterUser, cancelOrderUser, ViewAllZones, getProductsByHSN, AuthUserByID, updateProfileUser, SignupNewUser, LoginUserWithOTP, LoginUserWithPass, SendOTP, SignupLoginUser, getTaxIdUser, ViewAllUserTaxes, ViewCompareByUser, applyPromoCode, getHomeLayoutData, AddWishListByUser, deleteCompareByUser, deleteWishListByUser, ViewWishListByUser, AddCompareByUser, ViewProductRating, ViewCategoryRating, AddRating, UsergetAllCategories, UsergetAllProducts, UsergetAllHomeProducts,DriverOrdersViewController, userOrdersViewController, getAllAttributeUser, getProductIdUser, updateUserController, createOrderController, updateUserAndCreateOrderController, userOrdersController, getHomeData, GetAllCategoriesByParentIdController
 } from "../controller/userController.js"
 import authenticateToken from "../middleware/authMiddleware.js";
 import { uploadImage, handleImageUpload } from "../controller/adminController.js";
@@ -191,7 +191,9 @@ router.put('/cancel-order/:id',checkOrigin, cancelOrderUser);
 router.get('/user-orders/:id',checkOrigin, userOrdersController);
 
 
+router.get('/driver-orders-view/:userId/:orderId',checkOrigin, DriverOrdersViewController);
 router.get('/user-orders-view/:userId/:orderId',checkOrigin, userOrdersViewController);
+
 
 router.post('/payment-request',checkOrigin, PaymentRequest);
 router.post('/payment-response', checkOrigin,PaymentResponse);
@@ -207,6 +209,10 @@ router.get('/get-message/:userId/:senderId',checkOrigin, GetUserMessage);
 router.post('/add-notification',checkOrigin, AddNotification);
 router.delete('/delete-notification/:id',checkOrigin, DeleteNotification);
 router.get('/get-notification/:userId/',checkOrigin, GetUserNotification);
+
+router.post('/add-wallet',checkOrigin, AddWallet);
+
+router.get('/all-transaction/:userId/',checkOrigin, AllTransaction);
 
 
 router.post('/add-cart',checkOrigin, AddCart);
@@ -312,6 +318,8 @@ router.get('/end-ride-request/:id/',checkOrigin, EndOrderRide);
 
 router.get('/start-ride-verify/:id/',checkOrigin, StartOrderVerifyRide);
 router.get('/end-ride-verify/:id/',checkOrigin, EndOrderVerifyRide);
+
+
 
 
 

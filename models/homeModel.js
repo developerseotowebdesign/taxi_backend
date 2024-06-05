@@ -53,8 +53,56 @@ const homeSchema = new mongoose.Schema(
         razorpay: {
             type: String,
             default: ""
-        }
-
+        },
+        serviceCharges: {
+            type: Number,
+            default: 0
+        },
+        returnFareCharges: {
+            type: Number,
+            default: 0
+        },
+        localHrCharges: {
+            type: Number,
+            default: 0
+        },
+        localCharges13: {
+            type: Number,
+            default: 0
+        },
+        localBeyond3hrsMinute: {
+            type: Number,
+            default: 0
+        },
+        localNightChargesHour: {
+            type: Number,
+            default: 0
+        },
+        OutstationOneWayChargesKm: {
+            type: Number,
+            default: 0
+        },
+        outstationChargesRoundTripDay: {
+            type: Number,
+            default: 0
+        },
+        OutstationNightCharges: {
+            type: Number,
+            default: 0
+        },
+        MealCharges: {
+            type: Number,
+            default: 0
+        },
+        BookingCancelCharges: {
+            type: Number,
+            default: 0
+        },
+        ShowStatus: {
+            type: Number,
+            default: 0
+        },
+        
     },
     { timestamps: true }
 );
