@@ -317,7 +317,7 @@ router.get('/start-ride-request/:id/',checkOrigin, StartOrderRide);
 router.get('/end-ride-request/:id/',checkOrigin, EndOrderRide);
 
 router.get('/start-ride-verify/:id/',checkOrigin, StartOrderVerifyRide);
-router.get('/end-ride-verify/:id/',checkOrigin, EndOrderVerifyRide);
+router.post('/end-ride-verify/:id/',checkOrigin, EndOrderVerifyRide);
 
 
 

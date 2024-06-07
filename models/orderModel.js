@@ -116,6 +116,10 @@ const orderSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  FinalDriveKM: {
+    type: Number,
+    default: 0,
+  },
   otpStartDate: {
     type: Date,
   },

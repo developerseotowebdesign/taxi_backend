@@ -3763,7 +3763,49 @@ const calculateTimeDuration = (start, end) => {
 };
 
 
+const calculateDaysDuration = (start, end) => {
+  const startTime = new Date(start);
+  const endTime = new Date(end);
+
+  // Calculate the total difference in milliseconds
+  const difference = endTime - startTime;
+
+  // Calculate the number of days
+  const days = Math.floor(difference / 1000 / 60 / 60 / 24);
+
+  // Calculate the number of night changes
+  let nightChanges = 0;
+  let currentTime = new Date(startTime);
+
+  // Iterate from start to end, checking each night period
+  while (currentTime < endTime) {
+    // Define the night period for the current date
+    const currentNightStart = new Date(currentTime);
+    currentNightStart.setHours(23, 0, 0, 0); // 11 PM of the current day
+    const currentNightEnd = new Date(currentTime);
+    currentNightEnd.setDate(currentNightEnd.getDate() + 1);
+    currentNightEnd.setHours(5, 0, 0, 0); // 5 AM of the next day
+
+    // Check if the interval overlaps with the night period
+    if (
+      (startTime < currentNightEnd && endTime > currentNightStart) ||
+      (startTime < currentNightEnd && endTime > currentNightStart)
+    ) {
+      nightChanges++;
+    }
+
+    // Move to the next day
+    currentTime.setDate(currentTime.getDate() + 1);
+  }
+
+  return { days, nightChanges };
+};
+
+
 export const EndOrderVerifyRide = async (req, res) => {
+
+
+
   try {
     const orderId  = req.params.id;
   
@@ -3798,14 +3840,49 @@ export const EndOrderVerifyRide = async (req, res) => {
       });
     }
 
-     
- order.endStatusOTP = 1;
- const EndDate = new Date(); // Update otpEndDate to the current date and time
-  order.otpEndDate = EndDate;
+
+    order.endStatusOTP = 1;
+    const EndDate = new Date(); // Update otpEndDate to the current date and time
+     order.otpEndDate = EndDate;
+     let TotalCost = 0;
+
+    if(order.bookingTyp === "Outstation"){
+
+
+  if(order.rideTyp !== 'One Way'){
+
+    const { FinalDriveKM } = req.body; // Changed to camelCase orderId
+
+
+    
+    TotalCost =  FinalDriveKM * caldata.OutstationOneWayChargesKm;
+    console.log(`TotalCost: ${TotalCost} ${FinalDriveKM}`);
+    
+  }else{
+
+    
+  const Totaltime = calculateDaysDuration(order.otpStartDate, EndDate);
+  const { days, nightChanges} = Totaltime;
+
+
+  TotalCost = (days * caldata.outstationChargesRoundTripDay) + (nightChanges * caldata.OutstationNightCharges) ;
+
+  
+
+ console.log(`nightChanges: ${nightChanges} `);
+
+ console.log(`days: ${days} `);
+ console.log(`TotalCost: ${TotalCost} `);
+ 
+}
+    }
+     else{
+
+
+
   const Totaltime = calculateTimeDuration(order.otpStartDate, EndDate);
   const { hours, minutes } = Totaltime;
 
- let TotalCost = 0;
 
     // Calculate total cost based on time duration
     if (hours <= 4) {
@@ -3821,6 +3898,10 @@ export const EndOrderVerifyRide = async (req, res) => {
         TotalCost += minutes * caldata.localBeyond3hrsMinute;
       }  
     }
+    
+
+}
+
 
     const roundedTotalCost = Math.round(TotalCost);
 
@@ -3879,9 +3960,11 @@ console.log('amountToDeduct',commissionAmount)
 
     return res.status(200).json({
       success: true,
-      message: 'Start Ride OTP Verified successfully',
+      message: 'End Ride OTP Verified successfully',
       order,
     });
+
+ 
 
   } catch (error) {
     return res.status(400).json({
