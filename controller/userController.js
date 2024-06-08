@@ -275,6 +275,40 @@ export const AddMessage = async (req, res) => {
   }
 }
 
+
+export const AddMessageOrder = async (req, res) => {
+  try {
+
+    const { text, userId, senderId,orderId } = req.body;
+
+    console.log(text, userId, senderId,orderId)
+    // Create a new Message document
+    const message = new messageModel({
+      text,
+      receiver:userId,
+      sender:senderId,
+      orderId:orderId,
+    });
+
+    // Save the message to the database
+    await message.save();
+
+
+    return res.status(200).send({
+      success: true,
+      message: 'Message Send successfully',
+    })
+
+  } catch (error) {
+    return res.status(500).send
+      ({
+        message: `error Message Send ${error}`,
+        sucesss: false,
+        error
+      })
+  }
+}
+
 export const GetUserMessage = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -303,6 +337,36 @@ export const GetUserMessage = async (req, res) => {
   }
 };
 
+
+export const GetUserMessageOrder = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const senderId = req.params.senderId;
+    const orderId = req.params.orderId;
+
+    console
+    // Find messages where the sender is equal to userId and the receiver is equal to senderId
+    const messages = await messageModel.find({
+      $or: [
+        { sender: senderId, receiver: userId,orderId:orderId },
+        { sender: userId, receiver: senderId,orderId:orderId  }
+      ]
+    }).lean();
+
+    return res.status(200).send({
+      success: true,
+      message: 'Messages fetched successfully',
+      messages
+    });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    return res.status(500).send({
+      success: false,
+      message: `Error fetching messages: ${error}`,
+      error: error // Sending error details in the response
+    });
+  }
+};
 
 
 
@@ -1366,7 +1430,7 @@ export const updateUserAndCreateOrderController = async (req, res) => {
     totalAmount,
     userId,
     mode,
-    CarType,details,DriveHR
+    CarType,details,DriveHR,FinalDriveKM
   } = req.body;
 
 
@@ -1393,10 +1457,12 @@ export const updateUserAndCreateOrderController = async (req, res) => {
     }
 
     // Create order for the updated user
-    if ( !pickupTime || !bookingTyp || !rideTyp || !PickupLocation || !DestinationLocation || !BookingDistance || !totalAmount) {
+    if ( !pickupTime || !bookingTyp || !rideTyp || !PickupLocation || !DestinationLocation  || !totalAmount || !userId ) {
+      console.log('userId',userId)
       return res.status(400).json({
         success: false,
         message: 'Please provide all fields for the Booking',
+        body:req.body
       });
     }
 
@@ -1425,7 +1491,7 @@ export const updateUserAndCreateOrderController = async (req, res) => {
       userId,
       mode,
       CarType,details,
-      orderId,DriveHR
+      orderId,DriveHR,FinalDriveKM
     });
 
     await newOrder.save({ session });
@@ -2139,7 +2205,7 @@ export const userOrdersController = async (req, res) => {
   try {
     const userOrder = await userModel.findById(userId).populate({
       path: 'orders',
-      select: '_id createdAt totalAmount status mode orderId PickupLocation DestinationLocation CarType details pickupTime pickupDate rideTyp', // Include the driverId field
+      select: '_id createdAt totalAmount status mode orderId PickupLocation DestinationLocation CarType details pickupTime pickupDate rideTyp bookingTyp', // Include the driverId field
       options: {
         sort: { createdAt: -1 }
       },
@@ -3804,7 +3870,7 @@ const calculateDaysDuration = (start, end) => {
 
 export const EndOrderVerifyRide = async (req, res) => {
 
-
+  const { FinalDriveKM } = req.body; // Changed to camelCase orderId
 
   try {
     const orderId  = req.params.id;
@@ -3846,24 +3912,28 @@ export const EndOrderVerifyRide = async (req, res) => {
      order.otpEndDate = EndDate;
      let TotalCost = 0;
 
+     const Totaltime = calculateDaysDuration(order.otpStartDate, EndDate);
+     let { days, nightChanges} = Totaltime;
+
     if(order.bookingTyp === "Outstation"){
 
 
-  if(order.rideTyp !== 'One Way'){
+  if(order.rideTyp === 'One Way'){
 
-    const { FinalDriveKM } = req.body; // Changed to camelCase orderId
+    console.log(`FinalDriveKM: ${FinalDriveKM}`);
+ 
 
-
-    
-    TotalCost =  FinalDriveKM * caldata.OutstationOneWayChargesKm;
-    console.log(`TotalCost: ${TotalCost} ${FinalDriveKM}`);
+    TotalCost =  Number(FinalDriveKM) * caldata.OutstationOneWayChargesKm;
+    console.log(`TotalCost One Way: ${TotalCost} ${FinalDriveKM}`);
     
   }else{
 
     
-  const Totaltime = calculateDaysDuration(order.otpStartDate, EndDate);
-  const { days, nightChanges} = Totaltime;
 
+
+if(days === 0){
+  days = 1 ;
+}
 
   TotalCost = (days * caldata.outstationChargesRoundTripDay) + (nightChanges * caldata.OutstationNightCharges) ;
 
@@ -3889,7 +3959,7 @@ export const EndOrderVerifyRide = async (req, res) => {
       TotalCost = caldata.localCharges13;
       if(hours === 4){
         if (minutes > 0) {
-          TotalCost += minutes * caldata.localBeyond3hrsMinute;
+          TotalCost += minutes * caldata.localBeyond3hrsMinute ;
         }  
       }
     } else {
@@ -3898,7 +3968,7 @@ export const EndOrderVerifyRide = async (req, res) => {
         TotalCost += minutes * caldata.localBeyond3hrsMinute;
       }  
     }
-    
+    TotalCost = TotalCost + (nightChanges * caldata.localNightChargesHour)
 
 }
 

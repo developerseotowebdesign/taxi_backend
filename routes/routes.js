@@ -5,7 +5,7 @@ import {
     AddAdminPromoController, getAllPromoAdmin, updatePromoAdmin, getPromoIdAdmin, deletePromoAdmin
     ,editOrderDriverAdmin,AdminGetAllDriver, ChangePassAdmin, ForgotAdminPassword, editOrderAdmin, deleteOrderAdmin, AddAdminPageController, getAllPageAdmin, updatePageAdmin, getPageIdAdmin, deletePageAdmin, getAllBlogAdmin, exportAllProAdmin, importAllProAdmin, getAllUserAdmin, AddAdminTaxController, getAllTaxAdmin, updateTaxAdmin, getTaxIdAdmin, deleteTaxAdmin, ViewAllAdminZones, AddAdminZonesController, getAllZonesAdmin, updateZonesAdmin, getZonesIdAdmin, deleteZonesAdmin, GetImageAdmin, deleteFolderAdmin, UpdateFolderAdmin, getUserIdAdmin, GetFolderIDAdmin, AddAdminFolderController, GetFolderAdmin, editUserAdmin, AddAdminAttributeController, deleteRatingAdmin, editReviewAdmin, getAllOrderAdmin, getAllAttributeFillAdmin, updateAttributeAdmin, getAttributeIdAdmin, deleteAttributeAdmin, getAllAttribute, AddAdminTagController, getAllTagFillAdmin, updateTagAdmin, getTagIdAdmin, deleteTagAdmin, getAllTag, editHomeData, editHomeLayoutData,
 } from "../controller/adminController.js";
-import {getAllBookRide,AddMessage,AddNotification,GetUserMessage,GetUserNotification,
+import {getAllBookRide,AddMessage,AddMessageOrder,AddNotification,GetUserMessage,GetUserMessageOrder,GetUserNotification,
   findDistanceApi, AddCart, contactEnquire, razorpayCallback, UpdateCart, getCart, userTokenController, userBlogsController, Userlogin, SignupUser, getAllBlogsController, createBlogController,
     updateBlogController, deleteBlogController, getBlogIdController, CreateChatController, findUserschatController, findchatController
     ,AllTransaction,AddWallet ,StartOrderVerifyRide,EndOrderVerifyRide, EndOrderRide , StartOrderRide ,DeleteNotification,GetUsernameById,AllBookingsByDriver,AcceptOrderDriver,RejectOrderDriver,EmailVerify,PaymentResponse ,postman ,PaymentRequest, getProductsByFilterUser, cancelOrderUser, ViewAllZones, getProductsByHSN, AuthUserByID, updateProfileUser, SignupNewUser, LoginUserWithOTP, LoginUserWithPass, SendOTP, SignupLoginUser, getTaxIdUser, ViewAllUserTaxes, ViewCompareByUser, applyPromoCode, getHomeLayoutData, AddWishListByUser, deleteCompareByUser, deleteWishListByUser, ViewWishListByUser, AddCompareByUser, ViewProductRating, ViewCategoryRating, AddRating, UsergetAllCategories, UsergetAllProducts, UsergetAllHomeProducts,DriverOrdersViewController, userOrdersViewController, getAllAttributeUser, getProductIdUser, updateUserController, createOrderController, updateUserAndCreateOrderController, userOrdersController, getHomeData, GetAllCategoriesByParentIdController
@@ -203,7 +203,10 @@ router.get('/update-stuck-order/:id',checkOrigin, postman);
 
 
 router.post('/add-message',checkOrigin, AddMessage);
+router.post('/add-message-orderid',checkOrigin, AddMessageOrder);
+
 router.get('/get-message/:userId/:senderId',checkOrigin, GetUserMessage);
+router.get('/get-message-orderid/:userId/:senderId/:orderId',checkOrigin, GetUserMessageOrder);
 
 
 router.post('/add-notification',checkOrigin, AddNotification);

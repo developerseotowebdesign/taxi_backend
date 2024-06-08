@@ -15,6 +15,10 @@ const messageSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order', // Reference to the User model for the receiver
+    },
     createdAt: {
         type: Date,
         default: Date.now,
