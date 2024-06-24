@@ -1,45 +1,21 @@
 import mongoose from "mongoose";
 
-const orderSchema = mongoose.Schema(
+const valetSchema = mongoose.Schema(
   {
-    status: {
+    ValetTime: {
       type: String,
     },
-    pickupTime: {
+    ValetDate: {
       type: String,
     },
-    pickupDate: {
+    ValetLocation: {
       type: String,
     },
-    bookingTyp: {
+    ValetAddress: {
       type: String,
     },
-    rideTyp: {
-      type: String,
-    },
-    PickupLocation: {
-      type: String,
-    },
-    PickupAddress: {
-      type: String,
-    },
-    DestinationLocation: {
-      type: String,
-    },
-    DestinationAddress: {
-      type: String,
-    },
-    BookingDistance: {
-      type: String,
-    },
-    TripStart: {
-      type: String,
-    },
-    TripEnd: {
-      type: String,
-    },
-    CarType: {
-      type: String,
+    ValetCount: {
+      type: Number,
     },
     mode: {
       type: String,
@@ -50,18 +26,13 @@ const orderSchema = mongoose.Schema(
     discount: {
       type: String,
     },
-    shipping: {
-      type: String,
-    },
-    CarType: {
-      type: String,
-    },
     totalAmount: {
       required: [true, "Total Amount is required"],
       type: Number,
     },
-    totalFinalAmount: {
+    dailyCost: {
       type: Number,
+      default: 0,
     },
     userId: {
       // Changed field name to plural and set type as an array of ObjectIds
@@ -69,8 +40,7 @@ const orderSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
-    driverId: {
-      // Changed field name to plural and set type as an array of ObjectIds
+    VendorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
@@ -81,14 +51,23 @@ const orderSchema = mongoose.Schema(
         ref: "User",
       },
     ],
-    primary: {
-      type: String,
-    },
+    driverId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    otherdriverId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     payment: {
       type: Number,
       default: 0,
     },
-    orderId: {
+    Valet_Id: {
       type: Number,
     },
     reason: {
@@ -97,8 +76,9 @@ const orderSchema = mongoose.Schema(
     comment: {
       type: String,
     },
-    driverReject: {
-      type: Array,
+    paymentConfirm: {
+      type: Number,
+      default: 0,
     },
     startOTP: {
       type: Number,
@@ -116,18 +96,6 @@ const orderSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    DriveHR: {
-      type: Number,
-      default: 0,
-    },
-    FinalDriveHR: {
-      type: Number,
-      default: 0,
-    },
-    FinalDriveKM: {
-      type: Number,
-      default: 0,
-    },
     otpStartDate: {
       type: Date,
     },
@@ -138,10 +106,13 @@ const orderSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    status: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
-const orderModel = mongoose.model("Order", orderSchema);
+const valetModel = mongoose.model("Valet", valetSchema);
 
-export default orderModel;
+export default valetModel;
