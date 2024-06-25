@@ -15,58 +15,58 @@ import { Server } from "socket.io"; // Import Server class from socket.io
 import { SignupUserValetTypeViaAPI } from "./controller/userController.js";
 import userModel from "./models/userModel.js";
 import valetRideModel from "./models/valetRideModel.js";
-import {
-  client,
-  sendCatalogItem,
-  sendMessage,
-  sendLocation,
-} from "./utils/whatsappClient.js";
-// Event listener for incoming messages
-client.on("message", async (msg) => {
-  console.log("Incoming message:", msg.from, msg.body);
-  console.log("full mesasage ", msg, msg.body);
+// import {
+//   client,
+//   sendCatalogItem,
+//   sendMessage,
+//   sendLocation,
+// } from "./utils/whatsappClient.js";
+// // Event listener for incoming messages
+// client.on("message", async (msg) => {
+//   console.log("Incoming message:", msg.from, msg.body);
+//   console.log("full mesasage ", msg, msg.body);
 
-  // Example response logic
-  if (msg.body.toLowerCase() === "hello") {
-    // Reply back with a message
-    // await sendMessage(msg.from, "Hi there!");
-    await sendCatalogItem(msg.from, 1);
+//   // Example response logic
+//   if (msg.body.toLowerCase() === "hello") {
+//     // Reply back with a message
+//     // await sendMessage(msg.from, "Hi there!");
+//     await sendCatalogItem(msg.from, 1);
 
-    await sendLocation(msg.from, 37.7749, -122.4194, "San Francisco, CA");
-  }
+//     await sendLocation(msg.from, 37.7749, -122.4194, "San Francisco, CA");
+//   }
 
-  if (msg.body.toLowerCase().includes("newuser")) {
-    // Assuming you have a function to create an account for a new user
-    // const { phone, VendorId, driverId, Valet_Model } = parseMessageBody(
-    //   msg.body
-    // );
+//   if (msg.body.toLowerCase().includes("newuser")) {
+//     // Assuming you have a function to create an account for a new user
+//     // const { phone, VendorId, driverId, Valet_Model } = parseMessageBody(
+//     //   msg.body
+//     // );
 
-    // Regular expression pattern to match VendorId, driverId, and Valet_Model
-    const pattern = /VendorId=([^,]+),driverId=([^,]+),Valet_Model=([^,]+)/;
-    const match = msg.body.match(pattern);
+//     // Regular expression pattern to match VendorId, driverId, and Valet_Model
+//     const pattern = /VendorId=([^,]+),driverId=([^,]+),Valet_Model=([^,]+)/;
+//     const match = msg.body.match(pattern);
 
-    if (match) {
-      const clearphone = msg.from.split("@")[0];
-      const phone = clearphone.substring(2); // Remove '91' from the start
+//     if (match) {
+//       const clearphone = msg.from.split("@")[0];
+//       const phone = clearphone.substring(2); // Remove '91' from the start
 
-      const VendorId = match[1];
-      const driverId = match[2];
-      const Valet_Model = match[3];
-      const phoneId = msg.from;
-      console.log("VendorId:", VendorId);
-      console.log("driverId:", driverId);
-      console.log("Valet_Model:", Valet_Model);
+//       const VendorId = match[1];
+//       const driverId = match[2];
+//       const Valet_Model = match[3];
+//       const phoneId = msg.from;
+//       console.log("VendorId:", VendorId);
+//       console.log("driverId:", driverId);
+//       console.log("Valet_Model:", Valet_Model);
 
-      SignupUserValetTypeViaAPI(
-        phone,
-        VendorId,
-        driverId,
-        Valet_Model,
-        phoneId
-      );
-    }
-  }
-});
+//       SignupUserValetTypeViaAPI(
+//         phone,
+//         VendorId,
+//         driverId,
+//         Valet_Model,
+//         phoneId
+//       );
+//     }
+//   }
+// });
 
 const app = express();
 const server = http.createServer(app);

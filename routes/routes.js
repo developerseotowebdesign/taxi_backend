@@ -174,6 +174,7 @@ import {
   driverValeRideViewController,
   driverValetViewController,
   UpdateUserValetType,
+  UpdateUserValetRide,
 } from "../controller/userController.js";
 import authenticateToken from "../middleware/authMiddleware.js";
 import {
@@ -191,6 +192,7 @@ function checkOrigin(req, res, next) {
     "https://localhost:443",
     "https://localhost:80",
     "https://taxi.delhiexpert.com",
+    "https://localhost:5559",
   ]; // Add your authorized domains here
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -213,7 +215,7 @@ function checkHttps(req, res, next) {
 
 // user routes
 
-router.get("/api/find-distance/:pickup/:dropoff", findDistanceApi);
+router.post("/api/find-distance/", findDistanceApi);
 
 // admin routes
 
@@ -553,5 +555,7 @@ router.get("/start-valet-verify/:id/", checkOrigin, StartValetVerifyRide);
 router.get("/end-valet-verify/:id/", checkOrigin, EndValetVerifyRide);
 
 router.put("/update-valet-cost/:id/", valetUpdateDailyCost);
+
+router.put("/update-valet-ride/:id/", UpdateUserValetRide);
 
 export default router;

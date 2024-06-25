@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.8",
-    "baileys-wa": "^11.0.0",
+    "baileys-wa": "^5.1.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "ccavenue": "^1.0.2",
@@ -34,13 +34,13 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.11",
     "path": "^0.12.7",
-    "puppeteer": "^22.11.2",
+    "puppeteer": "^22.12.0",
     "qrcode-terminal": "^0.12.0",
     "querystring": "^0.2.1",
     "razorpay": "^2.9.2",
     "socket.io": "^4.7.5",
     "util": "^0.12.5",
-    "whatsapp-web.js": "^1.23.0"
+    "whatsapp-web.js": "^1.24.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

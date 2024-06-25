@@ -33,7 +33,7 @@ import multer from "multer";
 import path from "path";
 import { profile } from "console";
 import valetRideModel from "../models/valetRideModel.js";
-import { client, sendMessage } from "../utils/whatsappClient.js";
+// import { sendMessage } from "../utils/whatsappClient.js";
 dotenv.config();
 
 const storage = multer.diskStorage({
@@ -305,12 +305,12 @@ export const UpdateUserValetType = async (req, res) => {
       });
     }
 
-    const sendphone = updatedUser.phone;
-    const whatsappNumber = `91${sendphone}@c.us`;
+    // const sendphone = updatedUser.phone;
+    // const whatsappNumber = `91${sendphone}@c.us`;
 
-    const whastappmsg = `Thankyou ${updatedUser.username}, driver has updated your details  `;
+    // const whastappmsg = `Thankyou ${updatedUser.username}, driver has updated your details  `;
 
-    await sendMessage(whatsappNumber, whastappmsg);
+    //  await sendMessage(whatsappNumber, whastappmsg);
 
     // Success response
     res.status(200).json({
@@ -750,13 +750,11 @@ function constructObjectFromDataString(dataString) {
 }
 
 export const findDistanceApi = async (req, res) => {
-  try {
-    const key = "AIzaSyDYsdaR0zrPsBDeuyCKFH_4PuCUyWcQ2mE"; // Replace with your actual API key
-    const jsonpickup = JSON.stringify(req.params.pickup);
-    const jsondropoff = JSON.stringify(req.params.dropoff.replace(/"/g, ""));
+  console.log(req.body);
 
-    const pickup = jsonpickup.replace(/"/g, "");
-    const dropoff = jsondropoff.replace(/"/g, "");
+  try {
+    const { pickup, dropoff } = req.body;
+    const key = "AIzaSyDYsdaR0zrPsBDeuyCKFH_4PuCUyWcQ2mE"; // Replace with your actual API key
 
     const response = await axios.get(
       `https://maps.googleapis.com/maps/api/distancematrix/json?destinations=${dropoff}&origins=${pickup}&units=metric&key=${key}`
@@ -5156,6 +5154,71 @@ export const EndValetVerifyRide = async (req, res) => {
       message: `Error While Start Ride OTP Verified ${error}`,
       success: false,
       error,
+    });
+  }
+};
+
+export const UpdateUserValetRide = async (req, res) => {
+  try {
+    const {
+      PickupStartLocation,
+      PickupEndLocation,
+      DropStartLocation,
+      DropEndLocation,
+    } = req.body;
+
+    const id = req.params.id;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Valet id is required",
+      });
+    }
+
+    const updateFields = {};
+    console.log("PickupStartsssssLocation", PickupStartLocation);
+
+    if (PickupStartLocation) {
+      updateFields.PickupStartLocation = PickupStartLocation;
+      console.log("PickupStartLocation", PickupStartLocation);
+    }
+
+    if (PickupEndLocation) {
+      updateFields.PickupEndLocation = PickupEndLocation;
+    }
+    if (DropStartLocation) {
+      updateFields.DropStartLocation = DropStartLocation;
+    }
+    if (DropEndLocation) {
+      updateFields.DropEndLocation = DropEndLocation;
+    }
+
+    const updatedValet = await valetRideModel.findByIdAndUpdate(
+      id,
+      updateFields,
+      { new: true }
+    );
+
+    if (!updatedValet) {
+      return res.status(404).json({
+        success: false,
+        message: "Valet not found",
+      });
+    }
+
+    // Success response
+    res.status(200).json({
+      success: true,
+      message: "Valet updated successfully",
+      data: updatedValet,
+    });
+  } catch (error) {
+    console.error("Error occurred during Valet update:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Error occurred during Valet update: ${error.message}`,
+      error: error,
     });
   }
 };
