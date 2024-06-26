@@ -199,8 +199,16 @@ function checkOrigin(req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     next();
   } else {
-    // next();
-    res.status(403).json({ error: "Unauthorized domain" });
+    const secretKey = process.env.Authtoken;
+
+    const token = req.header("x-auth-token");
+
+    // Check if no token or token doesn't match
+    if (!token || token !== secretKey) {
+      res.status(403).json({ error: "Unauthorized domain" });
+    } else {
+      next();
+    }
   }
 }
 
