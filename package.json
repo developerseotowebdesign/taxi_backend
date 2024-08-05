@@ -1,0 +1,49 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "ccavenue": "^1.0.2",
+    "child_process": "^1.0.2",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "crypto-js": "^4.2.0",
+    "csv-parser": "^3.0.0",
+    "csv-stringify": "^6.4.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.3",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "image-size": "^1.0.2",
+    "jsdom": "^24.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.2",
+    "mongoose-autopopulate": "^1.1.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.11",
+    "path": "^0.12.7",
+    "puppeteer": "^22.12.0",
+    "qrcode-terminal": "^0.12.0",
+    "querystring": "^0.2.1",
+    "razorpay": "^2.9.2",
+    "sharp": "^0.30.7",
+    "socket.io": "^4.7.5",
+    "util": "^0.12.5",
+    "whatsapp-web.js": "^1.24.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
