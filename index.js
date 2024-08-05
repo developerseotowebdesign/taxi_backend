@@ -72,7 +72,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://taxi.delhiexpert.com"],
+    origin: ["http://localhost:5173", "https://taxi.delhiexpert.com", "https://valetwale.in"],
     methods: ["GET", "POST"], // Allow only GET and POST methods
   },
 }); // Create a new instance of Socket.io Server and pass the HTTP server to it
