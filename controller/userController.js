@@ -256,6 +256,7 @@ export const SignupUserCarImage = upload.fields([
 ]);
 
 export const SignupUserValetType = async (req, res) => {
+  console.log(req.body)
   try {
     const {
       username,
@@ -266,7 +267,6 @@ export const SignupUserValetType = async (req, res) => {
       driverId,
       Valet_Model, mode, payment
     } = req.body;
-
     const { carImage } = req.files;
 
     let existingUser = await userModel.findOne({ phone });
@@ -275,7 +275,7 @@ export const SignupUserValetType = async (req, res) => {
       // Update existing user details
       existingUser.username = username;
       existingUser.carNumber = carNumber;
-      existingUser.carName = carName;
+      existingUser.carName = carName ? carName : '';
       if (carImage && carImage.length > 0) {
         existingUser.carImage = carImage[0].path;
       }
@@ -288,7 +288,7 @@ export const SignupUserValetType = async (req, res) => {
         phone,
         carImage: carImage && carImage.length > 0 ? carImage[0].path : "",
         carNumber,
-        carName,
+        carName: carName ? carName : '',
       });
     }
 
@@ -503,11 +503,25 @@ export const userAdminValetId = async (req, res) => {
   }
 };
 
+
+export const UpdateUserCarImage = upload.fields([
+  { name: "carImage", maxCount: 1 },
+  { name: "carImage1", maxCount: 1 },
+  { name: "carImage2", maxCount: 1 },
+  { name: "carImage3", maxCount: 1 },
+  { name: "carImage4", maxCount: 1 },
+  { name: "carImage5", maxCount: 1 },
+  { name: "carImage6", maxCount: 1 },
+  { name: "carImage7", maxCount: 1 },
+  { name: "carImage8", maxCount: 1 },
+]);
+
+
 export const UpdateUserValetType = async (req, res) => {
   try {
     const { username, phone, carNumber, carName } = req.body;
 
-    const { carImage } = req.files;
+    const { carImage, carImage1, carImage2, carImage3, carImage4, carImage5, carImage6, carImage7, carImage8 } = req.files;
 
     // Check if the phone number exists in the request body
     if (!phone) {
@@ -516,6 +530,7 @@ export const UpdateUserValetType = async (req, res) => {
         message: "Phone number is required for updating user.",
       });
     }
+
 
     // Prepare the update object based on provided fields
     let updateFields = {
@@ -528,6 +543,20 @@ export const UpdateUserValetType = async (req, res) => {
     if (carImage) {
       updateFields.carImage = carImage[0].path;
     }
+
+    if (carImage1 || carImage2 || carImage3 || carImage4 || carImage5 || carImage6 || carImage7 || carImage8) {
+      updateFields.carImages = {
+        carImage1: carImage1 && carImage1[0] ? carImage1[0].path : '',
+        carImage2: carImage2 && carImage2[0] ? carImage2[0].path : '',
+        carImage3: carImage3 && carImage3[0] ? carImage3[0].path : '',
+        carImage4: carImage4 && carImage4[0] ? carImage4[0].path : '',
+        carImage5: carImage5 && carImage5[0] ? carImage5[0].path : '',
+        carImage6: carImage6 && carImage6[0] ? carImage6[0].path : '',
+        carImage7: carImage7 && carImage7[0] ? carImage7[0].path : '',
+        carImage8: carImage8 && carImage8[0] ? carImage8[0].path : '',
+      };
+    }
+
 
     // Find and update the user based on the phone number
     let updatedUser = await userModel.findOneAndUpdate(
@@ -576,7 +605,7 @@ export const userValetRideUserController = async (req, res) => {
       .find({ driverId, Valet_Model: valetId })
       .populate(
         "userId",
-        "_id username email phone carImage carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
+        "_id username email phone carImage carImages carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
       ) // Populate userId with specified fields
       .populate("VendorId", "_id username email phone "); // Populate VendorId with specified fields
 
@@ -584,7 +613,7 @@ export const userValetRideUserController = async (req, res) => {
       .find({ Valet_Model: valetId, type: 1 })
       .populate(
         "userId",
-        "_id username email phone carImage carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
+        "_id username email phone carImage carImages carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
       ) // Populate userId with specified fields
       .populate("VendorId", "_id username email phone "); // Populate VendorId with specified fields
 
@@ -612,6 +641,68 @@ export const userValetRideUserController = async (req, res) => {
   }
 };
 
+export const ValetRideUserController = async (req, res) => {
+  const { valetId } = req.params;
+
+  try {
+    // Assuming you want to find a valet record based on userId and valetId
+    const valet = await valetRideModel
+      .findById(valetId);
+
+
+    if (!valet) {
+      return res.status(404).json({
+        success: false,
+        message: "Valet not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Single Valet Found By valet ID ",
+      success: true,
+      valet,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error while getting Valet",
+      error: error.message,
+    });
+  }
+
+}
+
+export const ValetRideNotiUserController = async (req, res) => {
+  const { valetId } = req.params;
+
+  try {
+
+    const noti = await valetRideModel
+      .findByIdAndUpdate(
+        valetId,
+        { $inc: { noti: 1 } }, // Increment the notifications count by 1
+        { new: true } // Return the updated user document
+      );
+
+    return res.status(200).json({
+      message: "Single Valet Found By valet ID ",
+      success: true,
+      noti
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error while getting Valet",
+      error: error.message,
+    });
+  }
+
+}
+
 
 export const userValetParkingUserController = async (req, res) => {
   try {
@@ -622,7 +713,7 @@ export const userValetParkingUserController = async (req, res) => {
       .find({ userId, _id: valetId })
       .populate(
         "userId",
-        "_id username email phone carImage carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation"
+        "_id username email phone carImage carImages carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation"
       ) // Populate userId with specified fields
       .populate("VendorId", "_id username email phone "); // Populate VendorId with specified fields
 
@@ -3672,6 +3763,42 @@ const sendLogOTP = async (phone, otp) => {
   }
 };
 
+const sendSerOTP = async (phone, otp) => {
+  try {
+    // Construct the request URL with query parameters
+    const queryParams = querystring.stringify({
+      username: "greenvalet.trans",
+      password: "2owXc",
+      unicode: false,
+      from: "GREENV",
+      to: phone,
+      text: `Your OTP is ${otp} for valetwale.in Green Valet Parking Solutions`,
+    });
+    const url = `https://pgapi.smartping.ai/fe/api/v1/send?${queryParams}`;
+
+    // Make the GET request to send OTP
+    https
+      .get(url, (res) => {
+        console.log(`OTP API response status code: ${res.statusCode}`);
+        res.setEncoding("utf8");
+        res.on("data", (chunk) => {
+          console.log(`Response body: ${chunk}`);
+        });
+      })
+      .on("error", (error) => {
+        // console.log('url', url)
+        console.error("Error sending OTP:", error);
+        throw new Error("Failed to send OTP");
+      });
+
+    console.log("OTP request sent successfully", otp);
+  } catch (error) {
+    // Handle errors
+    console.error("Error sending OTP:", error);
+    throw new Error("Failed to send OTP");
+  }
+};
+
 
 const RecCar = async (phone) => {
   try {
@@ -3710,6 +3837,41 @@ const RecCar = async (phone) => {
 };
 
 
+const NotiCar = async (phone) => {
+  try {
+    // Construct the request URL with query parameters
+    const queryParams = querystring.stringify({
+      username: "greenvalet.trans",
+      password: "2owXc",
+      unicode: false,
+      from: "GREENV",
+      to: phone,
+      text: `your car is parked thank you for using valetwale.in. Get you car by visit this link :- https://valetwale.in/park-noti/66b4b14ad7c5f9a5b5e3c2e4`,
+    });
+    const url = `https://pgapi.smartping.ai/fe/api/v1/send?${queryParams}`;
+
+    // Make the GET request to send OTP
+    https
+      .get(url, (res) => {
+        console.log(`OTP API response status code: ${res.statusCode}`);
+        res.setEncoding("utf8");
+        res.on("data", (chunk) => {
+          console.log(`Response body: ${chunk}`);
+        });
+      })
+      .on("error", (error) => {
+        // console.log('url', url)
+        console.error("Error sending SMS:", error);
+        throw new Error("Failed to send SMS");
+      });
+
+    console.log("SMS request sent successfully");
+  } catch (error) {
+    // Handle errors
+    console.error("Error sending SMS:", error);
+    throw new Error("Failed to send SMS");
+  }
+};
 
 const CarDel = async (phone, otp) => {
   try {
@@ -4992,7 +5154,7 @@ export const driverValeRideViewController = async (req, res) => {
       .findOne({ _id: valetId })
       .populate(
         "userId",
-        "_id username email phone carNumber carName carImage "
+        "_id username email phone carNumber carName carImage carImages"
       ) // Populate userId with specified fields
       .populate("VendorId", "_id username email phone") // Populate VendorId with specified fields
       .populate("Valet_Model", "_id"); // Populate VendorId with specified fields
@@ -5976,6 +6138,60 @@ export const UpdateUserValetRideVerifyOTP = async (req, res) => {
           message: "OTP NOT Verified",
         });
       }
+
+    }
+
+
+
+  } catch (error) {
+    console.error("Error occurred during Valet update:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Error occurred during Valet update: ${error.message}`,
+      error: error,
+    });
+  }
+};
+
+
+export const UpdateUserValetRideKey = async (req, res) => {
+  try {
+
+    const id = req.params.id;
+
+    const updatedValet = await valetRideModel.findById(id);
+
+    if (!updatedValet) {
+      return res.status(400).json({
+        success: false,
+        message: "Valet not found",
+      });
+    } else {
+
+      if (updatedValet.pickupKey === 0) {
+        await valetRideModel.findByIdAndUpdate(
+          id,
+          { pickupKey: 1 },
+          { new: true }
+        );
+      } else if (updatedValet.pickupKey === 1 || updatedValet.dropKey === 0) {
+        await valetRideModel.findByIdAndUpdate(
+          id,
+          { dropKey: 1 },
+          { new: true }
+        );
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Something went wrong in key status",
+        });
+      }
+
+
+      res.status(200).json({
+        success: true,
+        message: "Valet key updated successfully",
+      });
 
     }
 

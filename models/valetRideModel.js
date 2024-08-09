@@ -85,6 +85,14 @@ const valetRideSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    pickupKey: {
+      type: Number,
+      default: 0,
+    },
+    dropKey: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

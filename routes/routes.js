@@ -172,9 +172,12 @@ import {
   valetUpdateDailyCost,
   AllValetByDriver,
   SignupUserCarImage,
+  UpdateUserCarImage,
   SignupUserValetType,
   CreateValetRide,
   userValetRideUserController,
+  ValetRideUserController,
+  ValetRideNotiUserController,
   driverValeRideViewController,
   driverValetViewController,
   UpdateUserValetType,
@@ -189,7 +192,8 @@ import {
   UpdateUserReviewOrder,
   UnAssignedDriverValet,
   UserAllValtRides,
-  UpdateUserValetRideVerifyOTP
+  UpdateUserValetRideVerifyOTP,
+  UpdateUserValetRideKey
 } from "../controller/userController.js";
 import authenticateToken from "../middleware/authMiddleware.js";
 import {
@@ -388,13 +392,14 @@ router.post("/admin/update-wallet", checkOrigin, AdminUpdateWallet);
 
 // --------------------    user routes start  -------------------//
 
-router.post("/signup-user-type", checkOrigin, SignupUserImage, handleImageCompression, SignupUserType);
+router.post("/signup-user-type", checkOrigin, SignupUserImage, SignupUserType);
 router.post(
   "/signup-user-car-type",
   checkOrigin,
   SignupUserCarImage,
   SignupUserValetType
 );
+
 
 router.post(
   "/create-valet-ride",
@@ -408,7 +413,7 @@ router.put("/update-valet-ride-payment/:id", editValetRidePayment);
 router.post(
   "/update-user-car-type",
   checkOrigin,
-  SignupUserCarImage,
+  UpdateUserCarImage,
   UpdateUserValetType
 );
 
@@ -416,6 +421,18 @@ router.get(
   "/user-valet-ride-view/:driverId/:valetId",
   checkOrigin,
   userValetRideUserController
+);
+
+router.get(
+  "/get-car/:valetId",
+  checkOrigin,
+  ValetRideUserController
+);
+
+router.get(
+  "/send-car-noti/:valetId",
+  checkOrigin,
+  ValetRideNotiUserController
 );
 
 // router.post("/signup", checkOrigin, SignupUser);
@@ -482,6 +499,7 @@ router.get("/all-transaction/:userId/", checkOrigin, AllTransaction);
 
 router.post("/add-cart", checkOrigin, AddCart);
 router.get("/get-cart/:id", checkOrigin, getCart);
+
 router.put("/update-cart/:id", checkOrigin, UpdateCart);
 
 router.get("/all-blogs", checkOrigin, getAllBlogsController);
@@ -644,6 +662,11 @@ router.put("/update-valet-cost/:id/", valetUpdateDailyCost);
 router.put("/update-valet-ride/:id/", UpdateUserValetRide);
 
 router.put("/update-valet-ride-verify-OTP/:id/", UpdateUserValetRideVerifyOTP);
+
+router.get("/update-valet-ride-key/:id/", UpdateUserValetRideKey);
+
+
+
 
 router.post("/login-verify-otp/", checkOrigin, LoginAndVerifyOTP);
 

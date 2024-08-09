@@ -1,6 +1,43 @@
 import mongoose from "mongoose";
 import autopopulate from "mongoose-autopopulate"; // Import autopopulate plugin
 
+// Define the car image schema
+const carImageSchema = new mongoose.Schema({
+  carImage1: {
+    type: String,
+    default: '',
+  },
+  carImage2: {
+    type: String,
+    default: '',
+  },
+  carImage3: {
+    type: String,
+    default: '',
+  },
+  carImage4: {
+    type: String,
+    default: '',
+  },
+  carImage5: {
+    type: String,
+    default: '',
+  },
+  carImage6: {
+    type: String,
+    default: '',
+  },
+  carImage7: {
+    type: String,
+    default: '',
+  },
+  carImage8: {
+    type: String,
+    default: '',
+  },
+}, { _id: false }); // _id: false prevents Mongoose from creating an _id field for this schema
+
+
 const userSchema = mongoose.Schema(
   {
     username: {
@@ -53,8 +90,14 @@ const userSchema = mongoose.Schema(
     },
     carImage: {
       type: String,
-      default: "",
+      default: "", // Default to an empty object
     },
+
+    carImages: {
+      type: carImageSchema,
+      default: () => ({}), // Default to an empty object
+    },
+
     orders: [
       {
         type: mongoose.Schema.Types.ObjectId,
