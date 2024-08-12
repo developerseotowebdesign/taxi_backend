@@ -39,6 +39,10 @@ const valetRideSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    driverIdDrop: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     Valet_Model: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Valet",

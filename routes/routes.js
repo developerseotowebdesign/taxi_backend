@@ -176,9 +176,11 @@ import {
   SignupUserValetType,
   CreateValetRide,
   userValetRideUserController,
+  userValetRideUserControllerById,
   ValetRideUserController,
   ValetRideNotiUserController,
   driverValeRideViewController,
+  vendorValeRideViewController,
   driverValetViewController,
   UpdateUserValetType,
   UpdateUserValetRide,
@@ -191,6 +193,7 @@ import {
   handleImageCompression,
   UpdateUserReviewOrder,
   UnAssignedDriverValet,
+  AssignedDriverValetRide,
   UserAllValtRides,
   UpdateUserValetRideVerifyOTP,
   UpdateUserValetRideKey
@@ -424,6 +427,13 @@ router.get(
 );
 
 router.get(
+  "/user-valet-ride-view-id/:valetId",
+  checkOrigin,
+  userValetRideUserControllerById
+);
+
+
+router.get(
   "/get-car/:valetId",
   checkOrigin,
   ValetRideUserController
@@ -610,6 +620,13 @@ router.get(
 );
 
 router.get(
+  "/vendor-valet-ride-view/:valetId",
+  checkOrigin,
+  vendorValeRideViewController
+);
+
+
+router.get(
   "/user-valet-parking-view/:userId/:valetId",
   checkOrigin,
   userValetParkingUserController
@@ -650,6 +667,9 @@ router.post(
 
 router.put("/update-valet-driver/:id/", AssignedDriverValet);
 router.put("/remove-valet-driver/:id/", UnAssignedDriverValet);
+
+router.put("/change-valet-driver-ride/:id/", AssignedDriverValetRide);
+
 
 router.get("/start-valet-request/:id/", checkOrigin, StartValetRide);
 router.get("/end-valet-request/:id/", checkOrigin, EndValetRide);

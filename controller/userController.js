@@ -602,7 +602,13 @@ export const userValetRideUserController = async (req, res) => {
 
     // Assuming you want to find a valet record based on userId and valetId
     const valet = await valetRideModel
-      .find({ driverId, Valet_Model: valetId })
+      .find({
+        $or: [
+          { driverId: driverId },
+          { driverIdDrop: driverId }
+        ],
+        Valet_Model: valetId
+      })
       .populate(
         "userId",
         "_id username email phone carImage carImages carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
@@ -640,6 +646,53 @@ export const userValetRideUserController = async (req, res) => {
     });
   }
 };
+
+
+export const userValetRideUserControllerById = async (req, res) => {
+  try {
+    const { valetId } = req.params;
+
+    // Assuming you want to find a valet record based on userId and valetId
+    const valet = await valetRideModel
+      .find({ Valet_Model: valetId })
+      .populate(
+        "userId",
+        "_id username email phone carImage carImages carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
+      ) // Populate userId with specified fields
+      .populate("VendorId", "_id username email phone "); // Populate VendorId with specified fields
+
+    const fixvalet = await valetRideModel
+      .find({ Valet_Model: valetId, type: 1 })
+      .populate(
+        "userId",
+        "_id username email phone carImage carImages carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
+      ) // Populate userId with specified fields
+      .populate("VendorId", "_id username email phone "); // Populate VendorId with specified fields
+
+
+    if (!valet) {
+      return res.status(404).json({
+        success: false,
+        message: "Valet not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Single Valet Found By user ID and Order ID",
+      success: true,
+      valet: valet,
+      fixvalet: fixvalet,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error while getting Valet",
+      error: error.message,
+    });
+  }
+};
+
 
 export const ValetRideUserController = async (req, res) => {
   const { valetId } = req.params;
@@ -3763,7 +3816,7 @@ const sendLogOTP = async (phone, otp) => {
   }
 };
 
-const sendSerOTP = async (phone, otp) => {
+const sendValetOTP = async (phone, otp) => {
   try {
     // Construct the request URL with query parameters
     const queryParams = querystring.stringify({
@@ -3772,7 +3825,7 @@ const sendSerOTP = async (phone, otp) => {
       unicode: false,
       from: "GREENV",
       to: phone,
-      text: `Your OTP is ${otp} for valetwale.in Green Valet Parking Solutions`,
+      text: `Your valet verification OTP is ${otp} for valetwale.in Green Valet Parking Solution`,
     });
     const url = `https://pgapi.smartping.ai/fe/api/v1/send?${queryParams}`;
 
@@ -3837,7 +3890,7 @@ const RecCar = async (phone) => {
 };
 
 
-const NotiCar = async (phone) => {
+const NotiCar = async (phone, id) => {
   try {
     // Construct the request URL with query parameters
     const queryParams = querystring.stringify({
@@ -3846,7 +3899,7 @@ const NotiCar = async (phone) => {
       unicode: false,
       from: "GREENV",
       to: phone,
-      text: `your car is parked thank you for using valetwale.in. Get you car by visit this link :- https://valetwale.in/park-noti/66b4b14ad7c5f9a5b5e3c2e4`,
+      text: `Your car is parked thank you for using valetwale.in. To request your car near Valet simply visit this link :- https://valetwale.in/park-noti/${id} for track your valet on the valetwale.in Green Valet Parking Solutions`,
     });
     const url = `https://pgapi.smartping.ai/fe/api/v1/send?${queryParams}`;
 
@@ -5181,6 +5234,45 @@ export const driverValeRideViewController = async (req, res) => {
   }
 };
 
+
+export const vendorValeRideViewController = async (req, res) => {
+  try {
+    const { valetId } = req.params;
+
+    // Assuming you want to find a valet record based on userId and valetId
+    const valet = await valetRideModel
+      .findOne({ _id: valetId })
+      .populate(
+        "userId",
+        "_id username email phone carNumber carName carImage carImages"
+      ) // Populate userId with specified fields
+      .populate("VendorId", "_id username email phone") // Populate VendorId with specified fields
+      .populate("Valet_Model", "_id") // Populate VendorId with specified fields
+      .populate("driverId", "_id username email phone profile")
+      .populate("driverIdDrop", "_id username email phone profile");
+
+    if (!valet) {
+      return res.status(404).json({
+        success: false,
+        message: "Valet Ride not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Single Valet Ride Found By driver ID and valet ID",
+      success: true,
+      valet: valet,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error while getting Valet ride",
+      error: error.message,
+    });
+  }
+};
+
 // for Vendor
 // for Vendor
 // for Vendor
@@ -5734,6 +5826,83 @@ export const UnAssignedDriverValet = async (req, res) => {
   }
 };
 
+
+export const AssignedDriverValetRide = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { driverId } = req.body;
+
+    // Check if driverId is a valid ObjectId (24 hex characters)
+    if (!/^[0-9a-fA-F]{24}$/.test(driverId)) {
+      return res.status(400).json({
+        message: "Invalid driverId",
+        success: false,
+      });
+    }
+
+    const order = await valetRideModel.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+        success: false,
+      });
+    }
+
+    if (order.driverIdDrop !== null && order.driverIdDrop !== undefined && (order.driverIdDrop.toString() === driverId)) {
+      // Remove the driverId if it's already assigned
+      order.driverIdDrop = null;
+      console.log('remove');
+      const text = `Valet parking Id #${order.ValetRide_Id} removed By Vendor`;
+      const notification = new notificationModel({
+        text,
+        receiver: driverId,
+      });
+
+      await notification.save();
+      await order.save();
+
+      console.log("Driver removed successfully!", driverId);
+
+      return res.status(200).json({
+        message: "Driver removed successfully!",
+        success: true,
+      });
+
+    } else {
+
+      order.driverIdDrop = driverId;
+
+      const text = `Valet parking Id #${order.ValetRide_Id} added By Vendor`;
+      const notification = new notificationModel({
+        text,
+        receiver: driverId,
+      });
+
+      await notification.save();
+      await order.save();
+
+      console.log("Driver added successfully!", driverId);
+
+      return res.status(200).json({
+        message: "Driver added successfully!",
+        success: true,
+      });
+
+    }
+
+
+  } catch (error) {
+    console.error(`Error while updating Order: ${error}`);
+    return res.status(500).json({
+      message: `Error while updating Order: ${error}`,
+      success: false,
+      error,
+    });
+  }
+};
+
+
 export const StartValetRide = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -5747,9 +5916,11 @@ export const StartValetRide = async (req, res) => {
     }
 
     // Check if the order exists
-    const order = await valetModel.findById(orderId);
+    const order = await valetModel.findById(orderId).populate('userId'); // Populate userId to access phone number
     // Generate 4-digit random OTP
     const generateOTP = () => Math.floor(1000 + Math.random() * 9000);
+
+
 
     // Create two different OTPs
     const startOTP = generateOTP();
@@ -5757,12 +5928,24 @@ export const StartValetRide = async (req, res) => {
     order.startOTP = startOTP;
     //  order.endOTP = endOTP;
 
+
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Valet not found",
       });
     }
+
+    // Send OTP to the user's phone
+    if (order.userId && order.userId.phone) {
+      await sendValetOTP(order.userId.phone, startOTP);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "User phone number not found.",
+      });
+    }
+
 
     await order.save();
 
@@ -5793,7 +5976,7 @@ export const EndValetRide = async (req, res) => {
     }
 
     // Check if the order exists
-    const order = await valetModel.findById(orderId);
+    const order = await valetModel.findById(orderId).populate('userId'); // Populate userId to access phone number
     // Generate 4-digit random OTP
     const generateOTP = () => Math.floor(1000 + Math.random() * 9000);
 
@@ -5808,6 +5991,18 @@ export const EndValetRide = async (req, res) => {
         message: "Valet not found",
       });
     }
+
+
+    // Send OTP to the user's phone
+    if (order.userId && order.userId.phone) {
+      await sendValetOTP(order.userId.phone, startOTP);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "User phone number not found.",
+      });
+    }
+
 
     await order.save();
 
@@ -5985,12 +6180,15 @@ export const UpdateUserValetRide = async (req, res) => {
       PickupEndLocation,
       DropStartLocation,
       DropEndLocation,
-      driverId, phone
+      driverId,
+      phone
     } = req.body;
     console.log(phone);
     const id = req.params.id;
 
-    if (!id) {
+    const ridemodel = await valetRideModel.findById(id);
+
+    if (!ridemodel) {
       return res.status(400).json({
         success: false,
         message: "Valet id is required",
@@ -6024,6 +6222,8 @@ export const UpdateUserValetRide = async (req, res) => {
           longitude: PickupEndLocation.longitude,
           latitude: PickupEndLocation.latitude,
         };
+        await NotiCar(phone, id);
+        console.log(phone, id, 'piccc')
       } else {
         return res.status(400).json({
           success: false,
@@ -6069,7 +6269,7 @@ export const UpdateUserValetRide = async (req, res) => {
       }
     }
 
-    if (driverId) {
+    if (driverId && !ridemodel.driverId) {
       updateFields.driverId = driverId;
     }
 
