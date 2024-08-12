@@ -292,6 +292,7 @@ export const SignupUserValetType = async (req, res) => {
       });
     }
 
+    RecCar(phone)
     const lastvaletRide = await valetRideModel.findOne().sort({ ValetRide_Id: -1 }).limit(1);
     let ValetRide_Id = 1; // Default to 1 if no orders exist yet
 
@@ -4125,7 +4126,7 @@ export const LoginUserWithOTP = async (req, res) => {
     const existingUser = await userModel.findOne({ phone, status: "1" });
 
     if (existingUser) {
-      // await sendLogOTP(phone, otp);
+      await sendLogOTP(phone, otp);
 
       return res.status(201).json({
         success: true,
@@ -4141,6 +4142,8 @@ export const LoginUserWithOTP = async (req, res) => {
         token: existingUser.token,
         otp: otp,
       });
+
+
     }
   } catch (error) {
     console.error("Error on signup:", error);
@@ -5290,6 +5293,7 @@ export const getAllBookValet = async (req, res) => {
           { VendorId: [] }, // Matches documents where VendorId is an empty string
         ],
         CancelId: { $ne: cancelId }, // Exclude bookings where CancelId matches
+        type: 0 // Matches documents where type equals 0
       })
       .populate("userId")
       .lean();
@@ -5706,7 +5710,7 @@ export const AssignedDriverValet = async (req, res) => {
 
         console.log("Driver removed success!", driverId);
       } else {
-        const text = `Valet Id #${order.Valet_Id} Assigned By Vendor`;
+        const text = `Vendor assigned a vallet go to my valet. Valet Id #${order.Valet_Id}`;
         const notification = new notificationModel({
           text,
           receiver: driverId,
@@ -5936,16 +5940,17 @@ export const StartValetRide = async (req, res) => {
       });
     }
 
-    // Send OTP to the user's phone
-    if (order.userId && order.userId.phone) {
-      await sendValetOTP(order.userId.phone, startOTP);
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "User phone number not found.",
-      });
+    if (order.type === 0) {
+      // Send OTP to the user's phone
+      if (order.userId && order.userId.phone) {
+        await sendValetOTP(order.userId.phone, startOTP);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "User phone number not found.",
+        });
+      }
     }
-
 
     await order.save();
 
@@ -5993,14 +5998,16 @@ export const EndValetRide = async (req, res) => {
     }
 
 
-    // Send OTP to the user's phone
-    if (order.userId && order.userId.phone) {
-      await sendValetOTP(order.userId.phone, startOTP);
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "User phone number not found.",
-      });
+    if (order.type === 0) {
+      // Send OTP to the user's phone
+      if (order.userId && order.userId.phone) {
+        await sendValetOTP(order.userId.phone, startOTP);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "User phone number not found.",
+        });
+      }
     }
 
 
@@ -6206,7 +6213,7 @@ export const UpdateUserValetRide = async (req, res) => {
           longitude: PickupStartLocation.longitude,
           latitude: PickupStartLocation.latitude,
         };
-        await RecCar(phone);
+        // await RecCar(phone);
       } else {
         return res.status(400).json({
           success: false,
@@ -6324,7 +6331,11 @@ export const UpdateUserValetRideVerifyOTP = async (req, res) => {
         // Success response
         await valetRideModel.findByIdAndUpdate(
           id,
-          { otpStatus: 1 },
+          {
+            otpStatus: 1,
+            userDropKey: 1,
+            dropKey: 1,
+          },
           { new: true }
         );
 
@@ -6396,6 +6407,57 @@ export const UpdateUserValetRideKey = async (req, res) => {
     }
 
 
+
+  } catch (error) {
+    console.error("Error occurred during Valet update:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Error occurred during Valet update: ${error.message}`,
+      error: error,
+    });
+  }
+};
+
+export const VendorUpdateUserValetRideKey = async (req, res) => {
+  try {
+
+    const id = req.params.id;
+
+    const updatedValet = await valetRideModel.findById(id);
+
+    if (!updatedValet) {
+      return res.status(400).json({
+        success: false,
+        message: "Valet not found",
+      });
+    } else {
+
+      if (updatedValet.VendorPickupKey === 0) {
+        await valetRideModel.findByIdAndUpdate(
+          id,
+          { VendorPickupKey: 1 },
+          { new: true }
+        );
+      } else if (updatedValet.VendorPickupKey === 1 || updatedValet.userDropKey === 0) {
+        await valetRideModel.findByIdAndUpdate(
+          id,
+          { userDropKey: 1 },
+          { new: true }
+        );
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Something went wrong in key status",
+        });
+      }
+
+
+      res.status(200).json({
+        success: true,
+        message: "Valet key updated successfully",
+      });
+
+    }
 
   } catch (error) {
     console.error("Error occurred during Valet update:", error);

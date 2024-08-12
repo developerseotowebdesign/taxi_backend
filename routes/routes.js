@@ -196,7 +196,8 @@ import {
   AssignedDriverValetRide,
   UserAllValtRides,
   UpdateUserValetRideVerifyOTP,
-  UpdateUserValetRideKey
+  UpdateUserValetRideKey,
+  VendorUpdateUserValetRideKey
 } from "../controller/userController.js";
 import authenticateToken from "../middleware/authMiddleware.js";
 import {
@@ -684,8 +685,7 @@ router.put("/update-valet-ride/:id/", UpdateUserValetRide);
 router.put("/update-valet-ride-verify-OTP/:id/", UpdateUserValetRideVerifyOTP);
 
 router.get("/update-valet-ride-key/:id/", UpdateUserValetRideKey);
-
-
+router.get("/vendor-update-valet-ride-key/:id/", VendorUpdateUserValetRideKey);
 
 
 router.post("/login-verify-otp/", checkOrigin, LoginAndVerifyOTP);
