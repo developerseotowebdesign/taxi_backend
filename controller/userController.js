@@ -292,7 +292,7 @@ export const SignupUserValetType = async (req, res) => {
       });
     }
 
-    RecCar(phone)
+    // RecCar(phone)
     const lastvaletRide = await valetRideModel.findOne().sort({ ValetRide_Id: -1 }).limit(1);
     let ValetRide_Id = 1; // Default to 1 if no orders exist yet
 
@@ -318,6 +318,9 @@ export const SignupUserValetType = async (req, res) => {
     }
 
     const valetRide = new valetRideModel(valetRideData);
+
+
+    await NotiCar(phone, valetRide.ValetRide_Id);
 
     await valetRide.save();
 
@@ -701,8 +704,7 @@ export const ValetRideUserController = async (req, res) => {
   try {
     // Assuming you want to find a valet record based on userId and valetId
     const valet = await valetRideModel
-      .findById(valetId);
-
+      .findOne({ ValetRide_Id: Number(valetId) });
 
     if (!valet) {
       return res.status(404).json({
@@ -3900,7 +3902,7 @@ const NotiCar = async (phone, id) => {
       unicode: false,
       from: "GREENV",
       to: phone,
-      text: `Your car is parked thank you for using valetwale.in. To request your car near Valet simply visit this link :- https://valetwale.in/park-noti/${id} for track your valet on the valetwale.in Green Valet Parking Solutions`,
+      text: `Dear client, our driver have received car for valet parking. To bring your car back. valetwale.in/park-noti/${id} Green Valet Parking Solutions`,
     });
     const url = `https://pgapi.smartping.ai/fe/api/v1/send?${queryParams}`;
 
@@ -6229,7 +6231,7 @@ export const UpdateUserValetRide = async (req, res) => {
           longitude: PickupEndLocation.longitude,
           latitude: PickupEndLocation.latitude,
         };
-        await NotiCar(phone, id);
+        //  await NotiCar(phone, id);
         console.log(phone, id, 'piccc')
       } else {
         return res.status(400).json({
