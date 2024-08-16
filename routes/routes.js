@@ -218,7 +218,8 @@ function checkOrigin(req, res, next) {
     "https://localhost:80",
     "https://taxi.delhiexpert.com",
     "https://localhost:5559",
-    "https://valetwale.in"
+    "https://valetwale.in",
+    "https://admin.valetwale.in",
   ]; // Add your authorized domains here
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
