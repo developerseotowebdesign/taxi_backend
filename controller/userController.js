@@ -350,6 +350,8 @@ export const SignupUserValetType = async (req, res) => {
   }
 };
 
+
+
 export const CreateValetRide = async (req, res) => {
   try {
     const {
@@ -5635,7 +5637,7 @@ export const AddDriverVendor = async (req, res) => {
     await newUser.save();
     res.status(201).json({
       success: true,
-      message: "User signed up successfully",
+      message: "User updated successfully",
     });
   } catch (error) {
     console.log(error);

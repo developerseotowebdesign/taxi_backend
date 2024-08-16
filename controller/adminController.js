@@ -1712,6 +1712,23 @@ export const deleteRatingAdmin = async (req, res) => {
   }
 };
 
+export const deleteUserAdmin = async (req, res) => {
+  try {
+    await userModel.findByIdAndDelete(req.params.id);
+
+    return res.status(200).send({
+      success: true,
+      message: "User Deleted!",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({
+      success: false,
+      message: "Error While Deleteing User",
+      error,
+    });
+  }
+};
 
 
 
@@ -2516,6 +2533,104 @@ export const editUserAdmin = async (req, res) => {
     });
   }
 };
+
+export const editUserDetailAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      username,
+      phone,
+      email,
+      password,
+      pincode,
+      Gender,
+      DOB,
+      address,
+    } = req.body;
+
+    const {
+      profile,
+      DLfile,
+      AadhaarFront,
+      AadhaarBack,
+      PoliceVerification,
+      PassPort,
+      Electricity,
+      WaterBill,
+    } = req.files;
+
+    let updateFields = {
+      username,
+      phone,
+      email,
+      pincode,
+      Gender,
+      DOB,
+      address,
+    };
+
+    if (password) {
+      updateFields.password = hashedPassword;
+    }
+
+    if (profile) {
+      updateFields.profile = profile[0].path;
+    }
+
+    if (DLfile) {
+      updateFields.DL = DLfile[0].path;
+    }
+
+    if (AadhaarFront) {
+      updateFields.AadhaarFront = AadhaarFront[0].path;
+    }
+
+    if (AadhaarBack) {
+      updateFields.AadhaarBack = AadhaarBack[0].path;
+    }
+
+    if (PoliceVerification) {
+      updateFields.PoliceVerification = PoliceVerification[0].path;
+    }
+
+    if (PassPort) {
+      updateFields.PassPort = PassPort[0].path;
+    }
+
+    if (Electricity) {
+      updateFields.Electricity = Electricity[0].path;
+    }
+
+    if (WaterBill) {
+      updateFields.WaterBill = WaterBill[0].path;
+    }
+
+    const user = await userModel.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
+
+    if (!user) {
+      return res.status(200).send({
+        message: "NO User found",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: "User Updated!",
+      success: true,
+      user,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: `Error while updating User: ${error}`,
+      success: false,
+      error,
+    });
+  }
+};
+
 
 export const getUserIdAdmin = async (req, res) => {
   try {

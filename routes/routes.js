@@ -75,6 +75,8 @@ import {
   editHomeData,
   editHomeLayoutData, getAllValetAdmin, editOrderVendorAdmin, AdminUpdateWallet,
   AdminCreateValetController, deleteValetAdmin,
+  deleteUserAdmin,
+  editUserDetailAdmin
 } from "../controller/adminController.js";
 import {
   SignupUserImage,
@@ -308,6 +310,10 @@ router.get("/admin/all-review", getAllReviewsAdmin);
 
 router.put("/admin/update-rating/:id", editReviewAdmin);
 router.delete("/admin/delete-rating/:id", deleteRatingAdmin);
+router.delete("/admin/delete-user/:id", deleteUserAdmin);
+router.put("/admin/edit-user-detail/:id", SignupUserImage, editUserDetailAdmin);
+
+
 
 // order Admin
 
