@@ -738,8 +738,8 @@ export const ValetRideNotiUserController = async (req, res) => {
   try {
 
     const noti = await valetRideModel
-      .findByIdAndUpdate(
-        valetId,
+      .findOneAndUpdate(
+        { ValetRide_Id: Number(valetId) },
         { $inc: { noti: 1 } }, // Increment the notifications count by 1
         { new: true } // Return the updated user document
       );
