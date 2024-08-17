@@ -6233,8 +6233,8 @@ export const UpdateUserValetRide = async (req, res) => {
           longitude: PickupEndLocation.longitude,
           latitude: PickupEndLocation.latitude,
         };
-        //  await NotiCar(phone, id);
-        console.log(phone, id, 'piccc')
+        await NotiCar(phone, ridemodel.ValetRide_Id);
+        //  console.log(phone, id, 'piccc')
       } else {
         return res.status(400).json({
           success: false,
