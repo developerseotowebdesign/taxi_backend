@@ -660,7 +660,7 @@ export const userValetRideUserControllerById = async (req, res) => {
 
     // Assuming you want to find a valet record based on userId and valetId
     const valet = await valetRideModel
-      .find({ Valet_Model: valetId })
+      .find({ Valet_Model: valetId, type: 0 })
       .populate(
         "userId",
         "_id username email phone carImage carImages carNumber carName PickupStartLocation PickupEndLocation DropStartLocation DropEndLocation mode"
@@ -6244,7 +6244,7 @@ export const UpdateUserValetRide = async (req, res) => {
     }
 
     if (DropStartLocation) {
-
+      await CarDel(phone, OTP);
       if (DropStartLocation.location && DropStartLocation.longitude && DropStartLocation.latitude) {
         updateFields.DropStartLocation = {
           location: DropStartLocation.location,
@@ -6261,7 +6261,7 @@ export const UpdateUserValetRide = async (req, res) => {
     }
 
     if (DropEndLocation) {
-      await CarDel(phone, OTP);
+
 
       if (DropEndLocation.location && DropEndLocation.longitude && DropEndLocation.latitude) {
         updateFields.DropEndLocation = {
