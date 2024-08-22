@@ -6244,7 +6244,7 @@ export const UpdateUserValetRide = async (req, res) => {
     }
 
     if (DropStartLocation) {
-      await CarDel(phone, OTP);
+      // await CarDel(phone, OTP);
       if (DropStartLocation.location && DropStartLocation.longitude && DropStartLocation.latitude) {
         updateFields.DropStartLocation = {
           location: DropStartLocation.location,
