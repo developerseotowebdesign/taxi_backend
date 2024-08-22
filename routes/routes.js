@@ -689,7 +689,7 @@ router.put("/update-valet-cost/:id/", valetUpdateDailyCost);
 
 router.put("/update-valet-ride/:id/", UpdateUserValetRide);
 
-router.put("/update-valet-ride-verify-OTP/:id/", UpdateUserValetRideVerifyOTP);
+router.put("/update-valet-ride-verify-id/:id/", UpdateUserValetRideVerifyOTP);
 
 router.get("/update-valet-ride-key/:id/", UpdateUserValetRideKey);
 router.get("/vendor-update-valet-ride-key/:id/", VendorUpdateUserValetRideKey);

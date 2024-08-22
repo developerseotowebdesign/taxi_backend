@@ -6313,7 +6313,7 @@ export const UpdateUserValetRide = async (req, res) => {
   }
 };
 
-export const UpdateUserValetRideVerifyOTP = async (req, res) => {
+export const UpdateUserValetRideVerifyOTP_Old = async (req, res) => {
   try {
     const {
       OTP
@@ -6367,6 +6367,63 @@ export const UpdateUserValetRideVerifyOTP = async (req, res) => {
     });
   }
 };
+
+
+export const UpdateUserValetRideVerifyOTP = async (req, res) => {
+  try {
+    const {
+      OTP
+    } = req.body;
+    const id = req.params.id;
+
+    let updateFields;
+
+    const updatedValet = await valetRideModel.findById(id);
+
+    if (!updatedValet) {
+      return res.status(400).json({
+        success: false,
+        message: "Valet not found",
+      });
+    } else {
+      if (OTP.toString() === updatedValet.ValetRide_Id.toString()) {
+        console.log(OTP.toString(), updatedValet.ValetRide_Id.toString())
+        // Success response
+        await valetRideModel.findByIdAndUpdate(
+          id,
+          {
+            otpStatus: 1,
+            userDropKey: 1,
+            dropKey: 1,
+          },
+          { new: true }
+        );
+
+        res.status(200).json({
+          success: true,
+          message: "OTP Verified successfully",
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "OTP NOT Verified",
+        });
+      }
+
+    }
+
+
+
+  } catch (error) {
+    console.error("Error occurred during Valet update:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Error occurred during Valet update: ${error.message}`,
+      error: error,
+    });
+  }
+};
+
 
 
 export const UpdateUserValetRideKey = async (req, res) => {
