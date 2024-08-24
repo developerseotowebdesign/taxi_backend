@@ -289,6 +289,7 @@ export const SignupUserValetType = async (req, res) => {
         carImage: carImage && carImage.length > 0 ? carImage[0].path : "",
         carNumber,
         carName: carName ? carName : '',
+        verified: 1,
       });
     }
 
